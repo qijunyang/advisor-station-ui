@@ -18,6 +18,8 @@ Always:
 4. Inspect the implemented components, hooks, services, utilities, and existing tests.
 5. Identify acceptance criteria, business rules, edge cases, and possible failure conditions.
 
+Follow the branch setup and resume workflow in `AGENTS.md`. For new work, use the exact feature folder name without a prefix, unless the user names a branch. For a coder handoff, verify the uncommitted implementation on the existing feature branch and working directory; do not switch branches or pull `develop`.
+
 Do not assume that the implementation is correct simply because it compiles or appears functional.
 
 If requirements are unclear, document the ambiguity rather than inventing expected behavior.
@@ -239,6 +241,17 @@ Restore mocks and reset state after each test.
 
 Prioritize meaningful coverage rather than maximizing a coverage percentage.
 
+Enforce the minimum thresholds from `AGENTS.md` in Vitest configuration:
+
+| Scope | Statements | Lines | Functions | Branches |
+|---|---|---|---|---|
+| Application source overall | 80% | 80% | 80% | 80% |
+| Each source file implementing financial calculations, allocation validation, tenant isolation, or access rules | 90% | 90% | 90% | 90% |
+
+Include application source files even when tests never import them. Document justified exclusions, limited to files such as generated code, type declarations, and test infrastructure. Do not lower thresholds or broaden exclusions to make coverage pass.
+
+Run coverage verification and report all four overall percentages and results for each critical file. Missing coverage tooling or configuration means verification is blocked, not passed. Percentage thresholds supplement meaningful behavior assertions and acceptance criteria.
+
 Highest priority:
 
 1. Financial calculations and business rules
@@ -287,13 +300,17 @@ Verify that:
 - Tests are deterministic.
 - Mocks are cleaned up.
 - Failures are not hidden by skipped tests.
+- Coverage meets every shared threshold, including per-file critical-rule thresholds.
+- ESLint checks application and test code with zero errors and zero warnings using the configured script with `--max-warnings 0` or equivalent enforcement. Do not disable or weaken rules or suppress findings merely to pass.
 
 Do not claim a test passed unless it was executed successfully.
 
 ## 12. Git and File Safety
 
-- Work on the current approved branch.
-- Do not switch branches without permission.
+- Follow the shared branch setup and resume workflow in `AGENTS.md`; do not create a separate branch for a role handoff.
+- Preserve implementation changes and leave implementation and test changes uncommitted throughout verification.
+- Follow the `AGENTS.md` commit gate. Passing unit tests alone does not make the feature ready to commit; required E2E and other checks must also pass against the final changes.
+- Missing, failed, skipped, or blocked required checks keep the work uncommitted unless the user explicitly approves an exception.
 - Do not commit, push, merge, or deploy without explicit approval.
 - Do not modify unrelated source files.
 - Do not change production logic without authorization.
@@ -310,11 +327,14 @@ A unit testing task is complete when:
 - Important positive, negative, and boundary cases are tested.
 - Tests are deterministic and maintainable.
 - Relevant test commands have been executed.
+- Coverage thresholds are met and ESLint reports zero errors and zero warnings.
 - Failures and defects are documented.
 - Coverage gaps and unverified behavior are disclosed.
 - No tests were weakened or disabled to hide defects.
+- Implementation defects have been reported to the coder, and affected unit and component tests have been rerun after corrections.
+- The E2E handoff identifies the branch, specification path, commands and results, unresolved defects, and coverage gaps.
 
-If any condition cannot be met, explain why.
+If any condition cannot be met, explain why. Report unit verification as passed, failed, or blocked; do not declare overall feature acceptance based on unit verification alone. Continue sequentially to E2E verification on the same working tree.
 
 ## 14. Completion Report
 
@@ -337,6 +357,9 @@ At the end of each task, provide:
 - Severity and impact
 
 **Coverage Gaps**
+- Overall statements, lines, functions, and branches percentages and critical-file results
+- Coverage exclusions and their justification
+- ESLint command and error/warning results
 - Missing scenarios
 - Areas requiring additional testing
 

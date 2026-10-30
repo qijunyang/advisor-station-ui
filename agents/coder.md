@@ -18,6 +18,8 @@ Always:
 4. Inspect existing components, hooks, services, types, and tests.
 5. Identify reusable functionality and architectural constraints.
 
+Follow the branch setup and resume workflow in `AGENTS.md`. Use the exact feature folder name without a prefix, unless the user explicitly names a branch. All three roles share that branch and working directory.
+
 Do not invent business requirements. Ask for clarification when a missing decision would materially affect correctness.
 
 ## 2. Technology Stack
@@ -144,12 +146,14 @@ If the approved architecture needs to change, request approval first.
 When applicable:
 
 - Run TypeScript checks.
-- Run linting.
-- Run relevant existing tests.
+- Run ESLint on application and test code with zero errors and zero warnings, using `--max-warnings 0` or equivalent enforcement.
+- Run relevant existing tests and coverage verification under `AGENTS.md`: at least 80% statements, lines, functions, and branches overall, and at least 90% for each metric per critical source file.
 - Run the production build.
 - Review changed code for defects.
 
 Never claim a command passed unless it actually ran successfully.
+
+When establishing tooling, configure Vitest to enforce the shared coverage thresholds and include unimported application source files. Critical files implement financial calculations, allocation validation, tenant isolation, or access rules. Document justified exclusions. Do not weaken lint rules or coverage settings to pass checks; report missing tooling as a verification gap.
 
 ### QA Handoff
 
@@ -160,6 +164,11 @@ Identify behavior requiring verification by:
 
 The coder is responsible for implementation and basic verification. Dedicated QA roles are responsible for independent test design and broader validation.
 
+- Leave implementation changes uncommitted for unit and E2E verification.
+- Provide the branch, specification path, changes made, commands and results, and known gaps.
+- Hand off sequentially to unit-test verification and then E2E verification on the same branch and working directory.
+- Do not switch branches or pull `develop` during handoff.
+
 ## 7. Handling QA Defects
 
 When QA reports a failure:
@@ -168,14 +177,16 @@ When QA reports a failure:
 2. Identify the root cause.
 3. Fix the production implementation.
 4. Preserve valid test assertions.
-5. Request re-verification.
+5. Request re-verification of affected unit and E2E scenarios and rerun other checks affected by the fix.
 
 Do not weaken tests merely to make the build pass.
 
 ## 8. Git Rules
 
-- Follow the current approved branch.
-- Do not switch branches without permission.
+- Follow the shared branch setup and resume workflow in `AGENTS.md`; do not create role-specific branches.
+- Preserve uncommitted implementation and test changes during role handoffs.
+- Enforce the `AGENTS.md` commit gate: approved requirements and all required TypeScript, lint, build, unit, and E2E checks must pass against the final changes before committing.
+- Missing, failed, skipped, or blocked required checks keep the work uncommitted unless the user explicitly approves an exception.
 - Do not commit, push, merge, or deploy without explicit approval.
 - Do not overwrite unrelated changes.
 - Do not modify `release` directly unless instructed.
@@ -188,13 +199,15 @@ A coding task is complete when:
 - Approved requirements are implemented.
 - Code follows established architecture.
 - TypeScript checks pass.
-- Relevant existing tests pass.
+- ESLint passes with zero errors and zero warnings on application and test code.
+- Required unit and component tests pass after unit-test verification, with all shared coverage thresholds met.
+- Required E2E tests pass after E2E verification.
 - The application builds successfully when applicable.
 - Important error and boundary cases are handled.
 - Known defects and unverified scenarios are disclosed.
-- QA verification requirements are identified.
+- No unresolved defects block acceptance, and verification covers the final changes.
 
-If verification cannot be completed, report why.
+If verification cannot be completed, report why and keep the work uncommitted under the shared commit gate. Passing verification still requires explicit user approval before committing.
 
 ## 10. Completion Report
 
