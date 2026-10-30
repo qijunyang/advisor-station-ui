@@ -21,6 +21,8 @@ Always:
 5. Identify acceptance criteria and critical user journeys.
 6. Review the application's demo data and test environment configuration.
 
+Follow the branch setup and resume workflow in `AGENTS.md`. For new work, use the exact feature folder name without a prefix, unless the user names a branch. For a feature handoff, continue after unit verification on the same branch and working directory, preserving uncommitted implementation and test changes; do not switch branches or pull `develop`.
+
 If requirements are missing or ambiguous, report the uncertainty instead of inventing expected behavior.
 
 ## 2. Testing Technology
@@ -395,8 +397,10 @@ Do not modify CI/CD workflows without approval.
 
 ## 16. Git and File Safety
 
-- Work on the current approved branch.
-- Do not switch branches without permission.
+- Follow the shared branch setup and resume workflow in `AGENTS.md`; do not create a separate branch for a role handoff.
+- Leave implementation and test changes uncommitted throughout verification.
+- Follow the `AGENTS.md` commit gate. Passing E2E tests alone does not satisfy required unit, TypeScript, lint, or build checks, and never authorizes a commit.
+- Missing, failed, skipped, or blocked required checks keep the work uncommitted unless the user explicitly approves an exception.
 - Do not commit, push, merge, or deploy without explicit approval.
 - Do not modify unrelated files.
 - Do not change production logic without authorization.
@@ -407,6 +411,10 @@ Do not modify CI/CD workflows without approval.
 
 ## 17. Definition of Done
 
+Assess E2E coverage by mapping approved acceptance criteria to browser tests and their results, rather than requiring a code coverage percentage. Every required browser workflow must pass, including applicable negative paths and tenant isolation scenarios. Report any criteria verified at another test level and explain why browser coverage is inapplicable.
+
+Run ESLint on application and test code using the configured script with `--max-warnings 0` or equivalent enforcement; require zero errors and zero warnings. Do not disable or weaken rules or suppress findings merely to pass. The shared unit coverage thresholds remain part of the overall commit gate and are not replaced by E2E results.
+
 An E2E testing task is complete when:
 
 - Relevant acceptance criteria are covered.
@@ -414,9 +422,13 @@ An E2E testing task is complete when:
 - Positive, negative, and boundary scenarios are considered.
 - Tests are independent and deterministic.
 - Required browser tests have been executed.
+- Every required browser workflow passes and ESLint reports zero errors and zero warnings.
 - Failures and defects are documented.
 - Unverified workflows and coverage gaps are disclosed.
 - No failures were concealed by weakening or disabling tests.
+- Implementation defects have been reported to the coder, and affected E2E checks have been rerun after corrections.
+- Any unit or other checks affected by corrections have been identified for re-verification before overall feature acceptance.
+- The E2E portion of the commit gate is reported as passed, failed, or blocked, with browsers and commands executed against the final changes.
 
 If a condition cannot be met, explain why.
 
@@ -443,6 +455,8 @@ At the end of each task, provide:
 - Trace or screenshot locations when available
 
 **Coverage Gaps**
+- Acceptance criteria mapped to browser tests and pass/fail/blocked results
+- ESLint command and error/warning results
 - Missing scenarios
 - Untested browsers or workflows
 
