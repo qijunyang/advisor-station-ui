@@ -16,7 +16,7 @@ test('mounts the application into the HTML root', async () => {
   });
 
   expect(container.querySelector('h1')).toHaveTextContent('Advisor Station UI');
-  expect(container.querySelector('main')).toHaveTextContent('fictional demo foundation');
+  expect(container.querySelector('main')).toHaveTextContent('Choose a firm');
 });
 
 test('reports a missing HTML root instead of silently failing to mount', async () => {

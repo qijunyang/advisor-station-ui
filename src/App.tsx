@@ -1,8 +1,13 @@
+import { BrowserRouter } from 'react-router';
+import { AppRoutes } from './app/AppRoutes';
+import { SessionProvider } from './features/auth/SessionProvider';
+
 export default function App() {
   return (
-    <main>
-      <h1>Advisor Station UI</h1>
-      <p>A fictional demo foundation for a financial advisor workspace.</p>
-    </main>
+    <BrowserRouter>
+      <SessionProvider>
+        <AppRoutes />
+      </SessionProvider>
+    </BrowserRouter>
   );
 }
