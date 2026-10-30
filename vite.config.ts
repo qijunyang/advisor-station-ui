@@ -12,7 +12,15 @@ export default defineConfig({
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/**/*.d.ts'],
       reporter: ['text', 'html', 'json-summary'],
-      thresholds: { statements: 80, lines: 80, functions: 80, branches: 80 },
+      thresholds: {
+        statements: 80, lines: 80, functions: 80, branches: 80,
+        'src/app/AppRoutes.tsx': { statements: 90, lines: 90, functions: 90, branches: 90 },
+        'src/features/auth/sessionValidation.ts': { statements: 90, lines: 90, functions: 90, branches: 90 },
+        'src/features/auth/SessionProvider.tsx': { statements: 90, lines: 90, functions: 90, branches: 90 },
+        'src/features/auth/components/SessionGuard.tsx': { statements: 90, lines: 90, functions: 90, branches: 90 },
+        'src/features/auth/components/LoginPage.tsx': { statements: 90, lines: 90, functions: 90, branches: 90 },
+        'src/features/workspace/WorkspaceLayout.tsx': { statements: 90, lines: 90, functions: 90, branches: 90 },
+      },
     },
   },
 });
