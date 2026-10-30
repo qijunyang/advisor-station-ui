@@ -19,6 +19,39 @@ Different origins (including ports), browsers, profiles, or storage partitions h
 
 Future mock-data scope keys contain `firmId`, `advisorId`, and `sessionId`. This feature defines the scope but does not implement financial datasets or mutable storage. Future services must copy seed data and isolate mutations by the full scope; unique session IDs alone do not isolate shared mutable data. Demo route guards are client-side simulations, not production authorization.
 
+## Shared Security Catalog
+
+Security metadata is available through `SecurityService.getSecurities(): Promise<readonly Security[]>` in `src/services/securities/`. Each readonly record has a stable unique `id`, display `symbol`, real `name`, listing `exchange`, and `type` (`stock`, `etf`, or `bond`). The mock returns exactly 40 real instruments in deterministic order: 20 stocks, 18 ETFs, and 2 exchange-listed senior notes classified as bonds. Bond ETFs retain type `etf`. Results and records are frozen copies; callers cannot corrupt the seed catalog. Symbols are display values, not unique selection IDs.
+
+Application components use the shared hook rather than importing fixtures or managing their own caches.
+
+The static metadata snapshot was checked on 2026-10-30 against Nasdaq Trader's [Nasdaq-listed directory](https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt), [other-listed directory](https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt), and [exchange definitions](https://www.nasdaqtrader.com/Trader.aspx?id=SymbolDirDefs). It is test data, not a live catalog. Real public instrument metadata is explicitly approved for this feature; firms, advisors, and future customer fixtures remain fictional.
+
+`useSecurities(search)` accepts optional text and returns case-insensitive partial matches on symbol OR name. Outer whitespace is ignored; blank search returns all 40 records, while unmatched text returns an empty successful list. Matching is literal, preserves order and exchange metadata, and does not search exchange labels. Each consumer filters its own view of one full cached catalog. Typing does not trigger another service call or create another cache entry. A search field/selector UI remains future work.
+
+```tsx
+import { useSecurities } from './shared/hooks/useSecurities';
+
+// Inside a component rendered beneath AppDataProvider:
+const { data, isLoading, isFetching, isLoadingError, isRefetchError, error, refetch } = useSecurities(search);
+// data: readonly Security[] | undefined; an empty array is a valid success.
+// isLoading: initial fetch; isFetching: any fetch, including background refresh.
+// isLoadingError: no successful data; isRefetchError: refresh failed, previous data remains.
+// Call refetch() from a retry/refresh interaction, including while cached data is fresh.
+```
+
+The app's `AppDataProvider` owns one TanStack Query client above routing and auth. The catalog key is `['securities', 'catalog']`, shared across firms, advisors, and sessions because this metadata is identical for everyone. Auth changes do not clear it. No catalog page or selector is added yet, and no catalog fetch occurs until the hook is used.
+
+Successful data stays fresh for **300 seconds from load completion**. Ordinary mounts, refocus, and reconnection reuse fresh data and may refresh stale data. Time passing alone does not start a fetch: there is no polling. Manual `refetch()` can bypass the freshness window. Concurrent consumers share the same load.
+
+During background refresh, previously loaded data remains available. A refresh failure retains that data and exposes the error. Initial failures have no successful data, and retries are explicit rather than automatic. Empty successful results are cached normally. Inactive entries are eligible for collection 300 seconds after their final consumer unsubscribes; this retention is separate from freshness.
+
+Caching is in memory per mounted app/tab. Full reloads, separate tabs, and new cache instances may load independently. No browser-storage persistence or cross-tab catalog synchronization is used. Future firm-specific catalogs must include firm scope in both service requests and query keys. This global metadata exception does not change the isolation rules for models, portfolios, or session data.
+
+To replace the mock with a future HTTP service, implement the same `SecurityService` interface and supply it through `<AppDataProvider securityService={service}>`. A cache represents one data source: replace the provider/cache together, or clear the catalog before changing the service in a running app. The raw service itself has no five-minute cache; use the hook to get this behavior.
+
+Service tests sit beside `MockSecurityService.ts`; cache tests sit beside `useSecurities.ts`. Tests use controlled Promises, isolated clients, and fake time for freshness and collection boundaries. Provider integration tests verify reuse across auth changes. Fixtures stay behind the service in `src/mocks/securities.ts`.
+
 ## Prerequisites
 
 - Node.js 24.22.1 (the baseline in `.nvmrc`); supported range: Node 24.22.1 or newer within Node 24.
@@ -61,7 +94,11 @@ src/
   App.tsx                 Router and session-provider composition
   App.test.tsx            Integrated route and component behavior tests
   app/AppRoutes.tsx       Login, entry redirect, guarded workspace, not-found routes
-  features/auth/  Hardcoded directory, session validation, persistence, coordination, and login UI
+  app/AppDataProvider.tsx Shared query cache and security service injection
+  services/securities/    Shared metadata types, service contract, and mock implementation
+  shared/hooks/          Reusable security query hook and service context
+  mocks/securities.ts    Static real security metadata consumed only by the mock service
+  features/auth/          Hardcoded directory, session validation, persistence, coordination, and login UI
   features/workspace/     Top action bar, left navigation, Dashboard, and routed content outlet
   main.tsx                React mounting entry point
   main.test.tsx           Entry-point mounting and missing-root tests
@@ -87,4 +124,4 @@ Playwright writes an HTML report to `playwright-report/` and retains failure tra
 
 ## Deferred Work
 
-CI/CD, hosting, deployment, UI component libraries, query/state libraries, production authentication, and financial business features remain deferred. The future hosting direction is GitHub Actions plus a Cloudflare Pages `pages.dev` address, with manually approved deployment from `release`; no workflows or hosting resources are created here.
+CI/CD, hosting, deployment, UI component libraries, additional state libraries, production authentication, and financial business features remain deferred. The future hosting direction is GitHub Actions plus a Cloudflare Pages `pages.dev` address, with manually approved deployment from `release`; no workflows or hosting resources are created here.
