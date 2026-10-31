@@ -19,6 +19,16 @@ Different origins (including ports), browsers, profiles, or storage partitions h
 
 Future mock-data scope keys contain `firmId`, `advisorId`, and `sessionId`. This feature defines the scope but does not implement financial datasets or mutable storage. Future services must copy seed data and isolate mutations by the full scope; unique session IDs alone do not isolate shared mutable data. Demo route guards are client-side simulations, not production authorization.
 
+## Models and Portfolios Layout Preview
+
+Workspace navigation now includes Dashboard, Models (`/workspace/models`), and Portfolios (`/workspace/portfolios`). These routes use the existing login guard and keep the advisor/logout header and navigation available while their tables scroll. On narrow screens, wide tables scroll horizontally inside their own keyboard-focusable region.
+
+Models displays 12 static fictional research rows with name, created/updated dates, and updated-by text. Each row has a labeled checkbox; select-all supports mixed selection, a count announces the current selection, and Clear selection resets it. Selection is local presentation state and resets on page navigation, refresh, or a changed firm/advisor/session scope. Create and Delete selected are visibly disabled with an explanation because creation, editing, and deletion are not implemented yet.
+
+Portfolios displays 10 static fictional broker-copy rows with name, broker, sample last-sync date, and source. It has no row selection, create/edit/delete controls, or import/sync action. The displayed dates are illustrative, not evidence of a real broker connection. Model/portfolio names are plain text; details and positions are deferred.
+
+These globally shared layout examples are labeled as fictional sample data and are not advisor-owned records. For this UI-first feature, the page components use feature-local readonly preview constants directly rather than introducing business services or network requests. Model/portfolio domain contracts, ownership, persistent data, positions, cash/trading rules, quote integration, and broker synchronization will be defined separately. Empty-table states are component-tested.
+
 ## Shared Security Catalog
 
 Security metadata is available through `SecurityService.getSecurities(): Promise<readonly Security[]>` in `src/services/securities/`. Each readonly record has a stable unique `id`, display `symbol`, real `name`, listing `exchange`, and `type` (`stock`, `etf`, or `bond`). The mock returns exactly 40 real instruments in deterministic order: 20 stocks, 18 ETFs, and 2 exchange-listed senior notes classified as bonds. Bond ETFs retain type `etf`. Results and records are frozen copies; callers cannot corrupt the seed catalog. Symbols are display values, not unique selection IDs.

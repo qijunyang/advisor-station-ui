@@ -99,3 +99,34 @@ test('shows failed logout in the workspace and keeps the advisor until removal s
   await userEvent.click(screen.getByRole('button', { name: 'Logout' }));
   expect(await screen.findByRole('heading', { name: 'Advisor Station UI' })).toBeVisible();
 });
+
+test('navigates through Dashboard, Models, and Portfolios and resets model selection on leaving', async () => {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  const user = userEvent.setup();
+  renderRoute('/workspace');
+  const navigation = screen.getByRole('navigation', { name: 'Workspace navigation' });
+  expect(within(navigation).getAllByRole('link').map((link) => link.textContent)).toEqual(['Dashboard', 'Models', 'Portfolios']);
+  await user.click(within(navigation).getByRole('link', { name: 'Models' }));
+  expect(screen.getByRole('heading', { name: 'Models' })).toBeVisible();
+  expect(within(navigation).getByRole('link', { name: 'Models' })).toHaveAttribute('aria-current', 'page');
+  await user.click(screen.getByRole('checkbox', { name: 'Select Balanced Research' }));
+  expect(screen.getByRole('status')).toHaveTextContent('1 of 12 selected');
+  await user.click(within(navigation).getByRole('link', { name: 'Portfolios' }));
+  expect(screen.getByRole('heading', { name: 'Portfolios' })).toBeVisible();
+  expect(within(navigation).getByRole('link', { name: 'Portfolios' })).toHaveAttribute('aria-current', 'page');
+  expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+  await user.click(within(navigation).getByRole('link', { name: 'Models' }));
+  expect(screen.getByRole('status')).toHaveTextContent('0 of 12 selected');
+});
+
+test('resets selected rows when the shared session is replaced in another tab', async () => {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  renderRoute('/workspace/models');
+  await userEvent.click(screen.getByRole('checkbox', { name: 'Select Balanced Research' }));
+  act(() => {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ ...session, firmId: 'harborview', advisorId: 'harborview-noah', sessionId: '8d368e4c-0102-4345-8678-123456789abc' }));
+    window.dispatchEvent(new StorageEvent('storage', { key: SESSION_KEY }));
+  });
+  expect(screen.getByText('Noah Brooks')).toBeVisible();
+  expect(screen.getByRole('status')).toHaveTextContent('0 of 12 selected');
+});
