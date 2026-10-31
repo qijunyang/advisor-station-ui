@@ -13,11 +13,11 @@ test('navigates the collections, supports selection, and keeps portfolios read-o
   await nav.getByRole('link', { name: 'Models', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Models', exact: true })).toBeVisible();
   await expect(nav.getByRole('link', { name: 'Models', exact: true })).toHaveAttribute('aria-current', 'page');
-  await expect(page.getByRole('button', { name: 'Create', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Create', exact: true })).toBeEnabled();
   await page.getByRole('checkbox', { name: 'Select Balanced Research', exact: true }).check();
   await expect(page.getByRole('status')).toHaveText('1 of 12 selected');
   expect(await page.getByRole('checkbox', { name: 'Select all models' }).evaluate((element) => (element as HTMLInputElement).indeterminate)).toBe(true);
-  await expect(page.getByRole('button', { name: 'Delete selected' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Delete selected' })).toBeEnabled();
   await page.getByRole('checkbox', { name: 'Select all models' }).check();
   await expect(page.getByRole('status')).toHaveText('12 of 12 selected');
   await page.getByRole('button', { name: 'Clear selection' }).click();

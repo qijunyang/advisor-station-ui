@@ -4,6 +4,8 @@ export interface ModelPreviewRow {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly updatedBy: string;
+  readonly createdBy?: string;
+  readonly description?: string;
 }
 
 export const previewModels: readonly ModelPreviewRow[] = [

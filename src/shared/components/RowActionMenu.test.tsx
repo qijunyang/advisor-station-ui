@@ -1,0 +1,52 @@
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { expect, test, vi } from 'vitest';
+import { RowActionMenu } from './RowActionMenu';
+
+test('opens on keyboard activation, navigates items, selects independently, and returns focus', async () => {
+  const view = vi.fn(); const edit = vi.fn(); const remove = vi.fn();
+  const user = userEvent.setup();
+  render(<RowActionMenu label="Record actions" actions={[{ label: 'View', onSelect: view }, { label: 'Edit', onSelect: edit }, { label: 'Delete', destructive: true, onSelect: remove }]} />);
+  const trigger = screen.getByRole('button', { name: 'Record actions' });
+  trigger.focus();
+  await user.keyboard('{Enter}');
+  expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  expect(screen.getByRole('menuitem', { name: 'View' })).toHaveFocus();
+  await user.keyboard('{ArrowDown}');
+  expect(screen.getByRole('menuitem', { name: 'Edit' })).toHaveFocus();
+  await user.keyboard('{End}');
+  expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
+  await user.keyboard('{Home}{ArrowUp}');
+  expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveFocus();
+  await user.keyboard('{Escape}');
+  expect(trigger).toHaveFocus();
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  await user.click(trigger);
+  await user.click(screen.getByRole('menuitem', { name: 'Edit' }));
+  expect(edit).toHaveBeenCalledOnce();
+  expect(view).not.toHaveBeenCalled();
+  expect(remove).not.toHaveBeenCalled();
+  expect(trigger).toHaveFocus();
+});
+
+test('dismisses through trigger, outside pointer, Tab, scrolling, and resizing', async () => {
+  const user = userEvent.setup();
+  render(<><button>Outside</button><RowActionMenu label="Actions" actions={[{ label: 'View', onSelect: vi.fn() }]} /></>);
+  const trigger = screen.getByRole('button', { name: 'Actions' });
+  await user.click(trigger); await user.click(trigger);
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  await user.click(trigger); await user.click(screen.getByRole('button', { name: 'Outside' }));
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  await user.click(trigger); await user.tab();
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  const bounds = vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ top: 100, bottom: 130, right: 200 } as DOMRect);
+  await user.click(trigger);
+  fireEvent.scroll(document);
+  expect(screen.getByRole('menu')).toBeInTheDocument();
+  bounds.mockReturnValue({ top: 80, bottom: 110, right: 200 } as DOMRect);
+  fireEvent.scroll(document);
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  bounds.mockRestore();
+  await user.click(trigger); fireEvent(window, new Event('resize'));
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+});
