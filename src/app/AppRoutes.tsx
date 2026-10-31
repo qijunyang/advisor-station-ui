@@ -3,6 +3,8 @@ import { LoginPage } from '../features/auth/components/LoginPage';
 import { SessionGuard } from '../features/auth/components/SessionGuard';
 import { Dashboard } from '../features/workspace/Dashboard';
 import { WorkspaceLayout } from '../features/workspace/WorkspaceLayout';
+import { ModelsPage } from '../features/models/ModelsPage';
+import { PortfoliosPage } from '../features/portfolios/PortfoliosPage';
 
 export function AppRoutes() {
   return (
@@ -12,6 +14,8 @@ export function AppRoutes() {
         <Route path="/" element={<Navigate to="/workspace" replace />} />
         <Route element={<WorkspaceLayout />}>
           <Route path="/workspace" element={<Dashboard />} />
+          <Route path="/workspace/models" element={<ModelsPage />} />
+          <Route path="/workspace/portfolios" element={<PortfoliosPage />} />
           <Route path="*" element={
             <>
               <h1>Page not found</h1>

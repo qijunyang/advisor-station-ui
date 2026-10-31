@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from 'react-router';
 import { useSession } from '../auth/SessionContext';
 import { findAdvisor } from '../auth/sessionValidation';
+import { sessionScope } from '../auth/sessionScope';
 
 export function WorkspaceLayout() {
   const { session, error, logout } = useSession();
   const selection = session && findAdvisor(session.firmId, session.advisorId);
-  if (!selection) return null;
+  if (!session || !selection) return null;
 
   return (
     <div className="workspace">
@@ -20,10 +21,12 @@ export function WorkspaceLayout() {
       <nav className="side-nav" aria-label="Workspace navigation">
         <span className="nav-label">WORKSPACE</span>
         <NavLink to="/workspace" end>Dashboard</NavLink>
+        <NavLink to="/workspace/models">Models</NavLink>
+        <NavLink to="/workspace/portfolios">Portfolios</NavLink>
       </nav>
       <main className="work-area" id="workspace-content">
         {error && <div className="error" role="alert">{error}</div>}
-        <Outlet />
+        <div className="workspace-route" key={JSON.stringify(sessionScope(session))}><Outlet /></div>
       </main>
     </div>
   );
