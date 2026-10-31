@@ -75,3 +75,32 @@ button:disabled { cursor: not-allowed; color: #69798a; background: #edf0f4; bord
   .collection-actions button { font-size: .8rem; padding: .5rem .7rem; }
   .dashboard-placeholder { padding: 1.25rem; }
 }
+
+.modal { width: min(36rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 1px solid #d1dce9; border-radius: .8rem; color: #172a40; background: white; box-shadow: 0 1.5rem 5rem #101f3340; }
+.modal::backdrop { background: #10243c80; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.2rem 1.5rem; border-bottom: 1px solid #e1e7ef; }
+.modal-header h2 { margin: 0; font-size: 1.3rem; }
+.modal-header button { border: 0; font-size: 1.4rem; padding: .1rem .5rem; }
+.modal-body { padding: 1.5rem; overflow-wrap: anywhere; }
+.modal-footer { display: flex; justify-content: flex-end; gap: .65rem; padding: 1rem 1.5rem; border-top: 1px solid #e1e7ef; background: #f7f9fc; }
+.model-form { display: grid; gap: .6rem; }
+.model-form label { font-weight: 600; font-size: .9rem; }
+.model-form input, .model-form textarea { font: inherit; color: inherit; border: 1px solid #a8b9ce; border-radius: .4rem; padding: .7rem; width: 100%; min-width: 0; }
+.model-form textarea { resize: vertical; min-height: 5rem; max-height: 40dvh; }
+.model-form input[aria-invalid=true] { border-color: #b7443e; }
+.model-form label:not(:first-child) { margin-top: .6rem; }
+.optional-label { font-weight: 400; color: #60738a; }
+.field-error { color: #a32c26; font-size: .85rem; margin: .4rem 0; }
+.dialog-note { margin: 1.3rem 0 0; color: #60738a; font-size: .8rem; }
+.model-details { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: .8rem; margin: 0; }
+.model-details dt { font-size: .85rem; color: #60738a; }
+.model-details dd { margin: 0; white-space: pre-wrap; }
+.primary-button { color: white; background: #235b9a; border-color: #235b9a; }
+.primary-button:hover { color: white; background: #194c85; }
+.danger-button { color: white; background: #ad3831; border-color: #ad3831; }
+.danger-button:hover { color: white; background: #912d27; }
+.confirmation-list { max-height: 30dvh; overflow: auto; padding-left: 1.5rem; }
+.row-menu-trigger { font-size: 1.3rem; line-height: 1; padding: .35rem .7rem; }
+.row-menu { position: fixed; width: 176px; z-index: 10; padding: .35rem; background: white; border: 1px solid #cdd9e7; border-radius: .5rem; box-shadow: 0 .5rem 2rem #10243c26; }
+.row-menu button { display: block; width: 100%; border: 0; text-align: left; padding: .55rem .75rem; font-size: .85rem; }
+.row-menu .danger-text { color: #a32c26; }

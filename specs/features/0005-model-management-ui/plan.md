@@ -1,0 +1,9 @@
+# Plan — Model Management UI
+
+Use existing React/TypeScript/CSS and browser primitives; add no dependencies. Build `shared/components/Modal.tsx` around native `dialog.showModal()` with a body portal, title/content/footer slots, Escape cancellation, initial-focus ref, and trigger/fallback restoration. Native modal behavior supplies top-layer rendering and background inertness; explicitly cycle Tab/Shift+Tab across dialog controls to retain keyboard focus. Test these behaviors in Chromium; jsdom only gets minimal dialog-method shims in unit setup.
+
+Build generic `ConfirmDialog` and `RowActionMenu` shared components. Render the menu in a fixed-position body portal, with viewport-bound positioning and keyboard controls, so table overflow does not clip it. Store one menu's open state per row; outside clicks close prior menus. Focus the trigger before dispatching a row action so dialogs can restore focus; use Create as fallback after deletion removes that trigger.
+
+Build one model-specific `ModelDialog` with discriminated create/view/edit props, shared name/description fields, validation, and read-only details. Add optional description/createdBy to the existing preview row shape; the persisted domain remains deferred. Keep local rows/selection/dialog target state in ModelsPage; UUID/date assignment belongs in UI event handling. A generic confirm receives snapshot names/IDs for exact single/bulk operations. Keep all portfolio code unchanged.
+
+Update old preview-only assertions for approved working model actions without weakening valid selection/read-only checks. Colocate tests for dialog validation/modes, menu behavior, shared shell/confirmation, and full page mutations. E2E covers CRUD, single/bulk cancellation, keyboard focus/containment, scroll-edge menus, mobile dialogs, auth changes, and existing portfolio/login regressions. Inspect screenshots, then run `npm run verify`. Leave work uncommitted for review.
